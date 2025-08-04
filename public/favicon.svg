@@ -1,0 +1,10 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sztanga -->
+  <rect x="8" y="28" width="48" height="8" fill="#2C3E50" rx="2" />
+  <!-- Lewa ciężar -->
+  <rect x="4" y="22" width="8" height="20" fill="#34495E" rx="2" />
+  <!-- Prawa ciężar -->
+  <rect x="52" y="22" width="8" height="20" fill="#34495E" rx="2" />
+  <!-- Litera W -->
+  <path d="M20 20 L26 44 L32 20 L38 44 L44 20" stroke="#E74C3C" stroke-width="4" stroke-linejoin="round" />
+</svg>

@@ -1,5 +1,7 @@
-import styles from "./AddExercise.module.css";
-import type { Exercise } from "./ExerciseItem";
+import type { ExerciseType } from "./ExerciseItem";
+import { Button } from "./ui/button";
+import { Card } from "./ui/card";
+import { Input } from "./ui/input";
 
 interface AddExerciseFormElements extends HTMLFormControlsCollection {
   exerciseName: HTMLInputElement;
@@ -14,7 +16,7 @@ interface AddExerciseForm extends HTMLFormElement {
 const AddExercise = ({
   onAddExercise,
 }: {
-  onAddExercise: (item: Exercise) => void;
+  onAddExercise: (item: ExerciseType) => void;
 }) => {
   const handleAddExercise = (event: React.FormEvent<AddExerciseForm>): void => {
     event.preventDefault();
@@ -38,20 +40,23 @@ const AddExercise = ({
   };
 
   return (
-    <form onSubmit={handleAddExercise} className={styles.addExercise}>
-      <label htmlFor="exerciseName">Nazwa ćwiczenia:</label>
-      <input type="text" name="exerciseName" />
-      <label htmlFor="repetitions">Ilość powtórzeń:</label>
-      <input
-        type="number"
-        name="repetitions"
-        min={0}
-        placeholder="Repetitions"
-      />
-      <label htmlFor="weight">Ciężar:</label>
-      <input type="number" name="weight" min={0} placeholder="KG" />
-      <input type="submit" value="Dodaj ćwiczenie" />
-    </form>
+    <Card>
+      <form onSubmit={handleAddExercise} className="flex flex-col gap-4 px-10">
+        <Input type="text" name="exerciseName" placeholder="Nazwa ćwiczenia" />
+
+        <Input
+          type="number"
+          name="repetitions"
+          min={0}
+          placeholder="Ilość powtórzeń"
+        />
+
+        <Input type="number" name="weight" min={0} placeholder="Ciężar w Kg" />
+        <Button type="submit" variant="default">
+          Dodaj ćwiczenie
+        </Button>
+      </form>
+    </Card>
   );
 };
 

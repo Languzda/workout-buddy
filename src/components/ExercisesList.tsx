@@ -1,6 +1,6 @@
-import ExerciseItem, { type Exercise } from "./ExerciseItem";
+import ExerciseItem, { type ExerciseType } from "./ExerciseItem";
 
-const ExercisesList = ({ exercises }: { exercises: Exercise[] }) => {
+const ExercisesList = ({ exercises }: { exercises: ExerciseType[] }) => {
   return (
     <ul>
       {exercises.map((exercise) => (
