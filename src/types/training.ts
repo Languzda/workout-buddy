@@ -15,5 +15,5 @@ export type Training = {
 };
 
 export type TrainingData = {
-  trenings: Training[];
+  trainings: Training[];
 };

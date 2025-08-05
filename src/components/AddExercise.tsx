@@ -1,7 +1,10 @@
+import { useTraining } from "@/hooks/useTraining";
 import type { ExerciseType } from "./ExerciseItem";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Input } from "./ui/input";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import type { Exercise } from "@/types/training";
 
 interface AddExerciseFormElements extends HTMLFormControlsCollection {
   exerciseName: HTMLInputElement;
@@ -18,6 +21,10 @@ const AddExercise = ({
 }: {
   onAddExercise: (item: ExerciseType) => void;
 }) => {
+  const { addExercise, data, startNewTraining, addSetToExercise } =
+    useTraining();
+  const [trainingId, setTrainingId] = useLocalStorage("activeTrainingId", "");
+
   const handleAddExercise = (event: React.FormEvent<AddExerciseForm>): void => {
     event.preventDefault();
 
@@ -35,6 +42,37 @@ const AddExercise = ({
     };
 
     console.log("New Exercise Added:", newExercise);
+
+    // TODO: temporary
+    if (!data.trainings.length || !trainingId || trainingId === "") {
+      const newTrainingId = startNewTraining();
+      setTrainingId(newTrainingId);
+    }
+
+    const newExercise2: Exercise = {
+      exerciseName,
+      repetitions: [
+        { repetitions: parseInt(repetitions), weight: parseFloat(weight) },
+      ],
+    };
+
+    const activeTraining = data.trainings.find(
+      (training) => training.id === trainingId
+    );
+
+    const isExistingExercise = activeTraining?.exercises.some(
+      (exercise) => exercise.exerciseName === newExercise2.exerciseName
+    );
+
+    if (isExistingExercise) {
+      addSetToExercise(
+        trainingId,
+        newExercise2.exerciseName,
+        newExercise2.repetitions[0]
+      );
+    } else {
+      addExercise(trainingId, newExercise2);
+    }
 
     onAddExercise(newExercise);
   };

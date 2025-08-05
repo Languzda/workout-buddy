@@ -27,6 +27,7 @@ type TrainingContextType = {
   addExercise: (trainingId: string, newExercise: Exercise) => void;
   editExercise: (trainingId: string, updatedExercise: Exercise) => void;
   removeExercise: (trainingId: string, exerciseName: string) => void;
+  startNewTraining: () => string;
 };
 
 const TrainingContext = createContext<TrainingContextType | undefined>(
@@ -37,13 +38,27 @@ export const TrainingProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [data, setData] = useLocalStorage<TrainingData>("daneTreningowe", {
-    trenings: [],
+    trainings: [],
   });
 
   const addTraining = (training: Training) => {
     setData((prev) => ({
-      trenings: [...prev.trenings, training],
+      trainings: [...prev.trainings, training],
     }));
+  };
+
+  const startNewTraining = () => {
+    const newTraining: Training = {
+      id: Date.now().toString(),
+      date: new Date().toISOString(),
+      exercises: [],
+    };
+
+    setData((prev) => ({
+      trainings: [...prev.trainings, newTraining],
+    }));
+
+    return newTraining.id;
   };
 
   const addSetToExercise = (
@@ -52,7 +67,7 @@ export const TrainingProvider: React.FC<{ children: React.ReactNode }> = ({
     newSet: WorkoutSet
   ) => {
     setData((prev) => ({
-      trenings: prev.trenings.map((t) => {
+      trainings: prev.trainings.map((t) => {
         if (t.id !== trainingId) return t;
         return {
           ...t,
@@ -70,7 +85,7 @@ export const TrainingProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const addExercise = (trainingId: string, newExercise: Exercise) => {
     setData((prev) => ({
-      trenings: prev.trenings.map((t) => {
+      trainings: prev.trainings.map((t) => {
         if (t.id !== trainingId) return t;
         return {
           ...t,
@@ -82,7 +97,7 @@ export const TrainingProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const editExercise = (trainingId: string, updatedExercise: Exercise) => {
     setData((prev) => ({
-      trenings: prev.trenings.map((t) => {
+      trainings: prev.trainings.map((t) => {
         if (t.id !== trainingId) return t;
         return {
           ...t,
@@ -98,7 +113,7 @@ export const TrainingProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const removeExercise = (trainingId: string, exerciseName: string) => {
     setData((prev) => ({
-      trenings: prev.trenings.map((t) => {
+      trainings: prev.trainings.map((t) => {
         if (t.id !== trainingId) return t;
         return {
           ...t,
@@ -115,7 +130,7 @@ export const TrainingProvider: React.FC<{ children: React.ReactNode }> = ({
     updatedSet: WorkoutSet
   ) => {
     setData((prev) => ({
-      trenings: prev.trenings.map((t) => {
+      trainings: prev.trainings.map((t) => {
         if (t.id !== trainingId) return t;
         return {
           ...t,
@@ -135,18 +150,18 @@ export const TrainingProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const removeTraining = (id: string) => {
     setData((prev) => ({
-      trenings: prev.trenings.filter((t) => t.id !== id),
+      trainings: prev.trainings.filter((t) => t.id !== id),
     }));
   };
 
   const editTraining = (updated: Training) => {
     setData((prev) => ({
-      trenings: prev.trenings.map((t) => (t.id === updated.id ? updated : t)),
+      trainings: prev.trainings.map((t) => (t.id === updated.id ? updated : t)),
     }));
   };
 
   const clearAllTrainings = () => {
-    setData({ trenings: [] });
+    setData({ trainings: [] });
   };
 
   return (
@@ -162,6 +177,7 @@ export const TrainingProvider: React.FC<{ children: React.ReactNode }> = ({
         addExercise,
         editExercise,
         removeExercise,
+        startNewTraining,
       }}
     >
       {children}
