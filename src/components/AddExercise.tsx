@@ -1,5 +1,4 @@
 import { useTraining } from "@/hooks/useTraining";
-import type { ExerciseType } from "./ExerciseItem";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Input } from "./ui/input";
@@ -16,11 +15,7 @@ interface AddExerciseForm extends HTMLFormElement {
   elements: AddExerciseFormElements;
 }
 
-const AddExercise = ({
-  onAddExercise,
-}: {
-  onAddExercise: (item: ExerciseType) => void;
-}) => {
+const AddExercise = () => {
   const { addExercise, data, startNewTraining, addSetToExercise } =
     useTraining();
   const [trainingId, setTrainingId] = useLocalStorage("activeTrainingId", "");
@@ -73,8 +68,6 @@ const AddExercise = ({
     } else {
       addExercise(trainingId, newExercise2);
     }
-
-    onAddExercise(newExercise);
   };
 
   return (
@@ -92,6 +85,16 @@ const AddExercise = ({
         <Input type="number" name="weight" min={0} placeholder="Ciężar w Kg" />
         <Button type="submit" variant="default">
           Dodaj ćwiczenie
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => {
+            const newTrainingId = startNewTraining();
+            setTrainingId(newTrainingId);
+          }}
+        >
+          Rozpocznij nowe trening
         </Button>
       </form>
     </Card>

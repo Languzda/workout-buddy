@@ -28,6 +28,13 @@ type TrainingContextType = {
   editExercise: (trainingId: string, updatedExercise: Exercise) => void;
   removeExercise: (trainingId: string, exerciseName: string) => void;
   startNewTraining: () => string;
+  removeSet: (
+    trainingId: string,
+    exerciseName: string,
+    setIndex: number
+  ) => void;
+  startTraining: (id: string) => void;
+  getActiveTrainingId: () => string;
 };
 
 const TrainingContext = createContext<TrainingContextType | undefined>(
@@ -40,6 +47,18 @@ export const TrainingProvider: React.FC<{ children: React.ReactNode }> = ({
   const [data, setData] = useLocalStorage<TrainingData>("daneTreningowe", {
     trainings: [],
   });
+  const [activeTrainingId, setActiveTrainingId] = useLocalStorage<string>(
+    "activeTrainingId",
+    ""
+  );
+
+  const getActiveTrainingId = () => {
+    return activeTrainingId;
+  };
+
+  const startTraining = (id: string) => {
+    setActiveTrainingId(id);
+  };
 
   const addTraining = (training: Training) => {
     setData((prev) => ({
@@ -57,6 +76,8 @@ export const TrainingProvider: React.FC<{ children: React.ReactNode }> = ({
     setData((prev) => ({
       trainings: [...prev.trainings, newTraining],
     }));
+
+    startTraining(newTraining.id);
 
     return newTraining.id;
   };
@@ -160,6 +181,28 @@ export const TrainingProvider: React.FC<{ children: React.ReactNode }> = ({
     }));
   };
 
+  const removeSet = (
+    trainingId: string,
+    exerciseName: string,
+    setIndex: number
+  ) => {
+    setData((prev) => ({
+      trainings: prev.trainings.map((t) => {
+        if (t.id !== trainingId) return t;
+        return {
+          ...t,
+          exercises: t.exercises.map((e) => {
+            if (e.exerciseName !== exerciseName) return e;
+            return {
+              ...e,
+              repetitions: e.repetitions.filter((_, idx) => idx !== setIndex),
+            };
+          }),
+        };
+      }),
+    }));
+  };
+
   const clearAllTrainings = () => {
     setData({ trainings: [] });
   };
@@ -177,7 +220,10 @@ export const TrainingProvider: React.FC<{ children: React.ReactNode }> = ({
         addExercise,
         editExercise,
         removeExercise,
+        removeSet,
         startNewTraining,
+        startTraining,
+        getActiveTrainingId,
       }}
     >
       {children}

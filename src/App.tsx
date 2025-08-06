@@ -1,23 +1,12 @@
-import { useState } from "react";
 import "./App.css";
 import AddExercise from "./components/AddExercise";
-import type { ExerciseType } from "./components/ExerciseItem";
-import ExercisesList from "./components/ExercisesList";
+import TrainingComponent from "./components/Training";
 import { useTraining } from "./hooks/useTraining";
-import { useLocalStorage } from "./hooks/useLocalStorage";
-import Training from "./components/Training";
 
 function App() {
-  const [exercises, setExercises] = useState<ExerciseType[]>([]);
-  const [activeTrainingId, setActiveTrainingId] = useLocalStorage<
-    string | null
-  >("activeTrainingId", null);
-  const { data } = useTraining();
+  const { data, getActiveTrainingId } = useTraining();
 
-  const addExercise = (exercise: ExerciseType) => {
-    setExercises((prevExercises) => [...prevExercises, exercise]);
-  };
-
+  const activeTrainingId = getActiveTrainingId();
   const activeTraining = data.trainings.find(
     (training) => training.id === activeTrainingId
   );
@@ -27,9 +16,8 @@ function App() {
       <h1 className="text-2xl font-bold my-10 text-center">
         Witamy w aplikacji Workout Buddy
       </h1>
-      <AddExercise onAddExercise={addExercise} />
-      {/* <ExercisesList exercises={exercises} /> */}
-      {activeTraining && <Training training={activeTraining} />}
+      <AddExercise />
+      {activeTraining && <TrainingComponent training={activeTraining} />}
     </div>
   );
 }

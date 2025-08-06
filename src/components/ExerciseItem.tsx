@@ -1,22 +1,36 @@
-import { Card } from "./ui/card";
+import type { Exercise } from "@/types/training";
+import { Button } from "./ui/button";
+import { useTraining } from "@/hooks/useTraining";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
-export interface ExerciseType {
-  id: string;
-  exerciseName: string;
-  repetitions: number;
-  weight: number;
-}
+const ExerciseItem = ({ item }: { item: Exercise }) => {
+  const { removeSet } = useTraining();
+  const [activeTrainingId, _] = useLocalStorage<string>("activeTrainingId", "");
 
-const ExerciseItem = ({ item }: { item: ExerciseType }) => {
+  const handleDeleteSet = (index: number) => {
+    removeSet(activeTrainingId, item.exerciseName, index);
+  };
+
   return (
     <li>
-      <Card className="p-4 flex flex-row items-center justify-between">
-        <span className="font-bold">{item.exerciseName}</span>
-        <span>
-          {item.weight === 0 ? "" : `Weight: ${item.weight} Kg |`} Reps:{" "}
-          {item.repetitions}
-        </span>
-      </Card>
+      <span className="font-bold">{item.exerciseName}</span>
+      <ul className="flex flex-col gap-1">
+        {item.repetitions.map((set, index) => (
+          <li key={index}>
+            <span>
+              Set {index + 1}: {set.repetitions} reps
+              {set.weight > 0 && ` | ${set.weight} Kg`}
+            </span>
+            <Button
+              variant="outline"
+              className="ml-2"
+              onClick={handleDeleteSet.bind(null, index)}
+            >
+              Delete
+            </Button>
+          </li>
+        ))}
+      </ul>
     </li>
   );
 };

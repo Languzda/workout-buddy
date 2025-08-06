@@ -1,17 +1,23 @@
-import type { Training } from "@/types/training";
 import { Card, CardAction, CardContent, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-
+import ExerciseItem from "./ExerciseItem";
+import { useTraining } from "@/hooks/useTraining";
+import type { Training } from "@/types/training";
 export interface TrainingProps {
   training: Training;
 }
 
-const Training = ({ training }: TrainingProps) => {
+const TrainingComponent = ({ training }: TrainingProps) => {
+  const { removeTraining } = useTraining();
   const exercises = training.exercises;
 
   if (!exercises || exercises.length === 0) {
     return <div>No exercises found for this training.</div>;
   }
+
+  const handleTrainingDelete = () => {
+    removeTraining(training.id);
+  };
 
   return (
     <Card>
@@ -19,26 +25,21 @@ const Training = ({ training }: TrainingProps) => {
       <CardContent>
         <ul className="flex flex-col gap-4">
           {exercises.map((exercise) => (
-            <li key={exercise.exerciseName}>
-              <p className="text-left text-xl">{exercise.exerciseName}</p>
-              <ul className="text-right flex flex-col justify-end gap-2">
-                {exercise.repetitions.map((set, index) => (
-                  <li key={index}>
-                    {set.weight} kg x {set.repetitions} reps
-                  </li>
-                ))}
-              </ul>
-            </li>
+            <ExerciseItem item={exercise} key={exercise.exerciseName} />
           ))}
         </ul>
         <p className="mt-10">Total Exercises: {exercises.length}</p>
       </CardContent>
-      <CardAction className="flex justify-between">
-        <Button className="btn btn-primary">Delete Training</Button>
-        <Button className="btn btn-secondary">Edit Training</Button>
+      <CardAction className="w-full px-10">
+        <div className="w-full flex justify-between gap-2 ">
+          <Button className="btn btn-primary" onClick={handleTrainingDelete}>
+            Delete Training
+          </Button>
+          <Button className="btn btn-secondary">Edit Training</Button>
+        </div>
       </CardAction>
     </Card>
   );
 };
 
-export default Training;
+export default TrainingComponent;
