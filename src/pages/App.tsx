@@ -1,14 +1,14 @@
-import "./App.css";
-import AddExercise from "./components/AddExercise";
-import TrainingComponent from "./components/Training";
-import { useTraining } from "./hooks/useTraining";
+import './App.css';
+import AddExercise from '@/components/AddExercise.tsx';
+import TrainingComponent from '@/components/Training.tsx';
+import { useTraining } from '@/hooks/useTraining.ts';
 
 function App() {
   const { data, getActiveTrainingId } = useTraining();
 
   const activeTrainingId = getActiveTrainingId();
   const activeTraining = data.trainings.find(
-    (training) => training.id === activeTrainingId
+    (training) => training.id === activeTrainingId,
   );
 
   return (
