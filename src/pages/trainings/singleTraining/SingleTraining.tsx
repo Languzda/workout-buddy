@@ -1,4 +1,6 @@
 import { type LoaderFunctionArgs, useLoaderData } from 'react-router';
+import { useTraining } from '@/hooks/useTraining.ts';
+import Training from '@/components/Training.tsx';
 
 export interface SingleTrainingParams {
   id: string;
@@ -11,8 +13,11 @@ export const SingleTrainingLoader = async ({
 };
 
 const SingleTraining = () => {
-  const data = useLoaderData();
-  return <h1>Training Id: {data.id}</h1>;
+  const loaderData = useLoaderData();
+  const { data } = useTraining();
+
+  const training = data.trainings.filter((t) => t.id === loaderData.id).at(0);
+  return <Training training={training} />;
 };
 
 export default SingleTraining;

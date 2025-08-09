@@ -1,5 +1,7 @@
+import TrainingsList from '@/components/TrainingsList.tsx';
+
 const Trainings = () => {
-  return <h1>Trainings</h1>;
+  return <TrainingsList />;
 };
 
 export default Trainings;

@@ -1,8 +1,8 @@
-import { Card, CardAction, CardContent, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import ExerciseItem from "./ExerciseItem";
-import { useTraining } from "@/hooks/useTraining";
-import type { Training } from "@/types/training";
+import { Card, CardAction, CardContent, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import ExerciseItem from './ExerciseItem';
+import { useTraining } from '@/hooks/useTraining';
+import type { Training } from '@/types/training';
 export interface TrainingProps {
   training: Training;
 }
@@ -12,7 +12,11 @@ const TrainingComponent = ({ training }: TrainingProps) => {
   const exercises = training.exercises;
 
   if (!exercises || exercises.length === 0) {
-    return <div>No exercises found for this training.</div>;
+    return (
+      <Card>
+        <CardTitle>No exercises found for this training.</CardTitle>
+      </Card>
+    );
   }
 
   const handleTrainingDelete = () => {
@@ -31,11 +35,10 @@ const TrainingComponent = ({ training }: TrainingProps) => {
         <p className="mt-10">Total Exercises: {exercises.length}</p>
       </CardContent>
       <CardAction className="w-full px-10">
-        <div className="w-full flex justify-between gap-2 ">
+        <div className="w-full flex justify-center ">
           <Button className="btn btn-primary" onClick={handleTrainingDelete}>
             Delete Training
           </Button>
-          <Button className="btn btn-secondary">Edit Training</Button>
         </div>
       </CardAction>
     </Card>
