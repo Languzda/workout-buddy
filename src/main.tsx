@@ -2,12 +2,13 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './pages/App.tsx';
-import { TrainingProvider } from './context/TrainingProvider.tsx';
 import { createBrowserRouter, RouterProvider } from 'react-router';
-import SingleTraining, {
-  SingleTrainingLoader,
-} from '@/pages/trainings/singleTraining/SingleTraining.tsx';
+import SingleTraining from '@/pages/trainings/singleTraining/SingleTraining.tsx';
 import Trainings from '@/pages/trainings/Trainings.tsx';
+import {
+  trainingsLoader,
+  singleTrainingLoader,
+} from '@/loaders/trainingLoaders.ts';
 
 const router = createBrowserRouter(
   [
@@ -22,10 +23,14 @@ const router = createBrowserRouter(
         {
           path: 'trainings',
           children: [
-            { index: true, Component: Trainings },
+            {
+              index: true,
+              Component: Trainings,
+              loader: trainingsLoader,
+            },
             {
               path: ':id',
-              loader: SingleTrainingLoader,
+              loader: singleTrainingLoader,
               Component: SingleTraining,
             },
           ],
@@ -38,7 +43,10 @@ const router = createBrowserRouter(
   },
 );
 
-async function loggingMiddleware({ request }: { request: Request }, next) {
+async function loggingMiddleware(
+  { request }: { request: Request },
+  next: () => Promise<unknown>,
+) {
   const url = new URL(request.url);
   console.log(`Starting navigation: ${url.pathname}${url.search}`);
   const start = performance.now();
@@ -49,8 +57,6 @@ async function loggingMiddleware({ request }: { request: Request }, next) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <TrainingProvider>
-      <RouterProvider router={router} />
-    </TrainingProvider>
+    <RouterProvider router={router} />
   </StrictMode>,
 );

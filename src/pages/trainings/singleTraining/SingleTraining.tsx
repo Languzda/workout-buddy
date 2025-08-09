@@ -1,22 +1,23 @@
-import { type LoaderFunctionArgs, useLoaderData } from 'react-router';
+import { useLoaderData } from 'react-router';
 import { useTraining } from '@/hooks/useTraining.ts';
 import Training from '@/components/Training.tsx';
-
-export interface SingleTrainingParams {
-  id: string;
-}
-
-export const SingleTrainingLoader = async ({
-  params,
-}: LoaderFunctionArgs<SingleTrainingParams>): Promise<{ id: string }> => {
-  return { id: params.id };
-};
+import type { Training as TrainingType } from '@/types/training';
 
 const SingleTraining = () => {
-  const loaderData = useLoaderData();
-  const { data } = useTraining();
+  const loaderData = useLoaderData() as {
+    training: TrainingType | null;
+    id: string;
+  };
+  const { trainings } = useTraining();
 
-  const training = data.trainings.filter((t) => t.id === loaderData.id).at(0);
+  // Use loader data if available, fallback to store data
+  const training =
+    loaderData.training || trainings.find((t) => t.id === loaderData.id);
+
+  if (!training) {
+    return <div>Trening nie został znaleziony</div>;
+  }
+
   return <Training training={training} />;
 };
 
