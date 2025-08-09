@@ -14,7 +14,7 @@ function App() {
   return (
     <div>
       <h1 className="text-2xl font-bold my-10 text-center">
-        Witamy w aplikacji Workout Buddy
+        Welcome to Workout Buddy app
       </h1>
       <AddExercise />
       {activeTraining && <TrainingComponent training={activeTraining} />}

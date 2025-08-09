@@ -2,13 +2,22 @@ import type { LoaderFunctionArgs } from 'react-router';
 import { useTrainingStore } from '../stores/trainingStore';
 import type { Training } from '../types/training';
 
-// Loader for trainings list
+/**
+ * Loader for loading list of all trainings
+ * Uses Zustand store to get current trainings state
+ * @returns Object containing list of trainings
+ */
 export const trainingsLoader = async () => {
   const { trainings } = useTrainingStore.getState();
   return { trainings };
 };
 
-// Loader for single training
+/**
+ * Loader for loading single training based on URL ID
+ * Searches for training in store and returns it with ID
+ * @param params - URL parameters from React Router containing training ID
+ * @returns Object containing found training (or null) and ID
+ */
 export const singleTrainingLoader = async ({
   params,
 }: LoaderFunctionArgs): Promise<{ training: Training | null; id: string }> => {
@@ -19,19 +28,5 @@ export const singleTrainingLoader = async ({
   return {
     training,
     id,
-  };
-};
-
-// Loader for active training
-export const activeTrainingLoader = async (): Promise<{
-  training: Training | null;
-  activeTrainingId: string;
-}> => {
-  const { getActiveTraining, activeTrainingId } = useTrainingStore.getState();
-  const training = getActiveTraining();
-
-  return {
-    training,
-    activeTrainingId,
   };
 };

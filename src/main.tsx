@@ -43,6 +43,12 @@ const router = createBrowserRouter(
   },
 );
 
+/**
+ * Middleware for logging navigation in React Router
+ * Measures navigation duration and logs path information
+ * @param request - Request object from React Router
+ * @param next - Function to execute next middleware/loader
+ */
 async function loggingMiddleware(
   { request }: { request: Request },
   next: () => Promise<unknown>,

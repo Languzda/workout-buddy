@@ -1,14 +1,21 @@
 import { useTrainingStore } from '../stores/trainingStore';
 
+/**
+ * Backward compatibility hook for useTraining
+ * Provides the same interface as previous Context/Reducer implementation
+ * but uses Zustand store underneath
+ *
+ * @returns Object containing all actions and state with additional aliases for compatibility
+ */
 export const useTraining = () => {
   const store = useTrainingStore();
 
-  // Provide convenient access to data for backward compatibility
+  // Provides convenient access to data for backward compatibility
   return {
     ...store,
     data: { trainings: store.trainings },
 
-    // Alias methods for backward compatibility
+    // Method aliases for backward compatibility
     editSet: store.updateSet,
     editExercise: store.updateExercise,
     editTraining: store.updateTraining,

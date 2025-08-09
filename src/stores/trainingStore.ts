@@ -3,23 +3,26 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import type { Training, Exercise, WorkoutSet } from '../types/training';
 
+/**
+ * Interface defining state and actions for training management store
+ * Uses Zustand with Immer middleware for immutable updates and persist for localStorage
+ */
 export interface TrainingState {
-  // Data
   trainings: Training[];
   activeTrainingId: string;
 
-  // Actions
+  // Basic training operations
   setTrainings: (trainings: Training[]) => void;
   addTraining: (training: Training) => void;
   updateTraining: (training: Training) => void;
   removeTraining: (id: string) => void;
 
-  // Exercise actions
+  // Exercise operations
   addExercise: (trainingId: string, exercise: Exercise) => void;
   updateExercise: (trainingId: string, updatedExercise: Exercise) => void;
   removeExercise: (trainingId: string, exerciseName: string) => void;
 
-  // Set actions
+  // Exercise set operations
   addSetToExercise: (
     trainingId: string,
     exerciseName: string,
@@ -37,7 +40,7 @@ export interface TrainingState {
     setIndex: number,
   ) => void;
 
-  // Active training actions
+  // Active training management
   setActiveTraining: (id: string) => void;
   startNewTraining: () => string;
   getActiveTraining: () => Training | null;
@@ -47,6 +50,11 @@ export interface TrainingState {
   syncFromLocalStorage: () => void;
 }
 
+/**
+ * Main application store using Zustand with middleware:
+ * - persist: automatic saving to localStorage
+ * - immer: enables "mutations" that are immutable
+ */
 export const useTrainingStore = create<TrainingState>()(
   persist(
     immer((set, get) => ({
@@ -176,6 +184,11 @@ export const useTrainingStore = create<TrainingState>()(
           state.activeTrainingId = id;
         }),
 
+      /**
+       * Creates new training and sets it as active
+       * Generates unique ID based on timestamp and automatically sets current date
+       * @returns ID of newly created training
+       */
       startNewTraining: () => {
         const newTraining: Training = {
           id: Date.now().toString(),

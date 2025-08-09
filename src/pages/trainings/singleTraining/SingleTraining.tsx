@@ -11,11 +11,13 @@ const SingleTraining = () => {
   const { trainings } = useTraining();
 
   // Use loader data if available, fallback to store data
+  // FIXME: Ensure loaderData is used correctly
+  // This is a temporary fix, ideally we should handle the case where loaderData might not be available
   const training =
     loaderData.training || trainings.find((t) => t.id === loaderData.id);
 
   if (!training) {
-    return <div>Trening nie został znaleziony</div>;
+    return <div>Training not found</div>;
   }
 
   return <Training training={training} />;
