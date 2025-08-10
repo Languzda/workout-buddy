@@ -13,8 +13,8 @@ const TrainingComponent = ({ training }: TrainingProps) => {
 
   if (!exercises || exercises.length === 0) {
     return (
-      <Card>
-        <CardTitle>No exercises found for this training.</CardTitle>
+      <Card className="w-90 text-center">
+        <CardTitle>Nie znaleziono ćwiczeń dla tego treningu.</CardTitle>
       </Card>
     );
   }
@@ -23,9 +23,12 @@ const TrainingComponent = ({ training }: TrainingProps) => {
     removeTraining(training.id);
   };
 
+  const trainingDateString = new Date(training.date).toLocaleString();
+
   return (
-    <Card>
-      <CardTitle>Training {training.date}</CardTitle>
+    <Card className="w-90 text-center">
+      <CardTitle>Training {trainingDateString}</CardTitle>
+
       <CardContent>
         <ul className="flex flex-col gap-4">
           {exercises.map((exercise) => (

@@ -47,7 +47,6 @@ export interface TrainingState {
 
   // Utility actions
   clearAllTrainings: () => void;
-  syncFromLocalStorage: () => void;
 }
 
 /**
@@ -217,11 +216,6 @@ export const useTrainingStore = create<TrainingState>()(
           state.trainings = [];
           state.activeTrainingId = '';
         }),
-
-      syncFromLocalStorage: () => {
-        // This will be handled by persist middleware
-        // But we can add custom logic here if needed
-      },
     })),
     {
       name: 'training-storage',

@@ -5,6 +5,7 @@ import App from './pages/App.tsx';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import SingleTraining from '@/pages/trainings/singleTraining/SingleTraining.tsx';
 import Trainings from '@/pages/trainings/Trainings.tsx';
+import Layout from '@/components/Layout.tsx';
 import {
   trainingsLoader,
   singleTrainingLoader,
@@ -14,6 +15,7 @@ const router = createBrowserRouter(
   [
     {
       path: '/',
+      Component: Layout,
       unstable_middleware: [loggingMiddleware],
       children: [
         {

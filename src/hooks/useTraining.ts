@@ -21,6 +21,5 @@ export const useTraining = () => {
     editTraining: store.updateTraining,
     getActiveTrainingId: () => store.activeTrainingId,
     startTraining: store.setActiveTraining,
-    syncWithLocalStorage: store.syncFromLocalStorage,
   };
 };

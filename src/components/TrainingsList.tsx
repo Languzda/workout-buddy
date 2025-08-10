@@ -9,7 +9,7 @@ const TrainingList = () => {
   const trainings = data?.trainings;
 
   return (
-    <ul>
+    <ul className="w-90 flex flex-col gap-4">
       {trainings?.map((item: Training) => (
         <li key={item.id}>
           <TrainingItem training={item} />
@@ -22,9 +22,9 @@ const TrainingList = () => {
 const TrainingItem = ({ training }: { training: Training }) => {
   return (
     <Card>
-      <CardTitle>
+      <CardTitle className="text-center">
         <Link to={`/trainings/${training.id}`}>
-          Training Data: {new Date(training.date).toLocaleTimeString()}
+          Training Data: {new Date(training.date).toLocaleString()}
         </Link>
       </CardTitle>
     </Card>

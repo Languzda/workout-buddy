@@ -12,12 +12,33 @@ function App() {
   );
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold my-10 text-center">
-        Welcome to Workout Buddy app
-      </h1>
+    <div className="space-y-6">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-foreground mb-2">
+          Witaj w Workout Buddy
+        </h1>
+        <p className="text-muted-foreground">
+          Zarządzaj swoimi treningami i ćwiczeniami
+        </p>
+      </div>
+
       <AddExercise />
-      {activeTraining && <TrainingComponent training={activeTraining} />}
+
+      {activeTraining ? (
+        <div>
+          <h2 className="text-xl font-semibold mb-4 text-center">
+            Aktywny trening
+          </h2>
+          <TrainingComponent training={activeTraining} />
+        </div>
+      ) : (
+        <div className="text-center text-muted-foreground">
+          <p>
+            Brak aktywnego treningu. Dodaj ćwiczenie, aby rozpocząć nowy
+            trening.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
