@@ -40,7 +40,7 @@ const AddExercise = () => {
     event.preventDefault();
 
     const form = event.currentTarget.elements;
-    const exerciseName = form.exerciseName.value;
+    const exerciseName = form.exerciseName.value.trim();
     const repetitions = parseInt(form.repetitions.value);
     const weight = parseFloat(form.weight.value);
 

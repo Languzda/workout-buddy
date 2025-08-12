@@ -172,7 +172,14 @@ export const useTrainingStore = create<TrainingState>()(
               (e: Exercise) => e.exerciseName === exerciseName,
             );
             if (exercise) {
-              exercise.repetitions.splice(setIndex, 1);
+              if (exercise.repetitions.length === 1) {
+                // If it's the last set, remove the exercise entirely
+                training.exercises = training.exercises.filter(
+                  (e: Exercise) => e.exerciseName !== exerciseName,
+                );
+              } else {
+                exercise.repetitions.splice(setIndex, 1);
+              }
             }
           }
         }),
