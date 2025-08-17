@@ -1,8 +1,5 @@
 // Typ ćwiczenia - czasowe lub wagowe
-export enum ExerciseType {
-  WEIGHT_BASED = 'weight_based', // ćwiczenia z ciężarami
-  TIME_BASED = 'time_based', // ćwiczenia czasowe (bieg, plank itp.)
-}
+export type ExerciseType = 'weight_based' | 'time_based'; // ćwiczenia z ciężarami lub czasowe
 
 // Podstawowa struktura serii - wspólne pola
 export interface BaseWorkoutSet {
@@ -81,9 +78,9 @@ export const isTimeBasedSet = (set: WorkoutSet): set is TimeBasedSet => {
 
 // Type guards dla rozróżnienia typów ćwiczeń
 export const isWeightBasedExercise = (exercise: Exercise): boolean => {
-  return exercise.type === ExerciseType.WEIGHT_BASED;
+  return exercise.type === 'weight_based';
 };
 
 export const isTimeBasedExercise = (exercise: Exercise): boolean => {
-  return exercise.type === ExerciseType.TIME_BASED;
+  return exercise.type === 'time_based';
 };

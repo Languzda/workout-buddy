@@ -2,7 +2,7 @@ import type {
   Training as NewTraining,
   Exercise as NewExercise,
 } from '../types/training';
-import { ExerciseType } from '../types/training';
+import type {  ExerciseType } from '../types/training';
 import { isTypicallyTimeBasedExercise } from './exerciseHelpers';
 
 // Stare typy dla celów migracji
@@ -69,7 +69,7 @@ export const migrateExercise = (oldExercise: OldExercise): NewExercise => {
 const determineExerciseType = (oldExercise: OldExercise): ExerciseType => {
   // Check if exercise name suggests it's time-based
   if (isTypicallyTimeBasedExercise(oldExercise.exerciseName)) {
-    return ExerciseType.TIME_BASED;
+    return 'time_based';
   }
 
   // Analyze the data patterns
@@ -79,18 +79,18 @@ const determineExerciseType = (oldExercise: OldExercise): ExerciseType => {
   const averageWeight =
     sets.reduce((sum, set) => sum + set.weight, 0) / sets.length;
   if (averageWeight < 5) {
-    return ExerciseType.TIME_BASED;
+    return 'time_based';
   }
 
   // If repetitions are very high (>60), might be time-based (seconds)
   const averageReps =
     sets.reduce((sum, set) => sum + set.repetitions, 0) / sets.length;
   if (averageReps > 60) {
-    return ExerciseType.TIME_BASED;
+    return 'time_based';
   }
 
   // Default to weight-based
-  return ExerciseType.WEIGHT_BASED;
+  return 'weight_based';
 };
 
 /**
@@ -110,7 +110,7 @@ const migrateSet = (
     completed: true, // Assume old sets were completed
   };
 
-  if (exerciseType === ExerciseType.TIME_BASED) {
+  if (exerciseType === 'time_based') {
     return {
       ...baseSet,
       duration: oldSet.repetitions, // Convert repetitions to seconds

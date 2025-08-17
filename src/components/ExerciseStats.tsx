@@ -1,4 +1,4 @@
-import { ExerciseType, type IExerciseStats } from '@/types/training';
+import type { IExerciseStats } from '@/types/training';
 import { formatDuration } from '@/utils/exerciseHelpers';
 import { useState } from 'react';
 
@@ -29,7 +29,7 @@ const ExerciseStats = ({ stats }: ExerciseStatsProps) => {
           {stats.personalRecord && (
             <p>
               Rekord osobisty: {stats.personalRecord.value}
-              {stats.type === ExerciseType.WEIGHT_BASED ? ' kg' : 's'}(
+              {stats.type === 'weight_based' ? ' kg' : 's'}(
               {new Date(stats.personalRecord.date).toLocaleDateString()})
             </p>
           )}

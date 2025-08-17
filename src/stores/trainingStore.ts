@@ -238,8 +238,11 @@ export const useTrainingStore = create<TrainingState>()(
       // New statistics and optimization methods
       getExerciseStats: (exerciseName) => {
         const { trainings } = get();
+        const exerciseNameCleaned = exerciseName.toLocaleLowerCase().trim();
         const allExercises = trainings.flatMap((training) =>
-          training.exercises.filter((ex) => ex.exerciseName === exerciseName),
+          training.exercises.filter(
+            (ex) => ex.exerciseName.toLowerCase() === exerciseNameCleaned,
+          ),
         );
 
         if (allExercises.length === 0) return null;
@@ -256,7 +259,7 @@ export const useTrainingStore = create<TrainingState>()(
         for (const training of trainings.slice().reverse()) {
           // odwrotna kolejność - od najnowszych
           const exercise = training.exercises.find(
-            (ex) => ex.exerciseName === exerciseName,
+            (ex) => ex.exerciseName.toLowerCase() === exerciseNameCleaned,
           );
           if (!exercise) continue;
 
@@ -294,7 +297,7 @@ export const useTrainingStore = create<TrainingState>()(
         }
 
         return {
-          exerciseName,
+          exerciseName: exerciseNameCleaned,
           type: firstExercise.type,
           lastMaxWeight,
           lastMaxDuration,

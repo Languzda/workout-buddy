@@ -1,10 +1,13 @@
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTraining } from '../hooks/useTraining';
-import { ExerciseType, type Exercise } from '../types/training';
+import type { ExerciseType, Exercise } from '../types/training';
 import { parseDuration } from '../utils/exerciseHelpers';
 import { Button } from './ui/button';
 import ExerciseInfo from './ExerciseInfo';
 import ExerciseStats from './ExerciseStats';
+import { Card, CardAction, CardContent, CardTitle } from './ui/card';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
 
 /**
  * Enhanced Add Exercise component supporting both weight-based and time-based exercises
@@ -26,12 +29,12 @@ export const EnhancedAddExercise = () => {
     getLastMaxWeightForExercise,
     getExerciseStatistics,
     getActiveTraining,
+    startNewTraining,
   } = useTraining();
-  const trainingId = getActiveTraining()?.id;
+
   const [exerciseName, setExerciseName] = useState('');
-  const [exerciseType, setExerciseType] = useState<ExerciseType>(
-    ExerciseType.WEIGHT_BASED,
-  );
+  const [exerciseType, setExerciseType] =
+    useState<ExerciseType>('weight_based');
   const [stats, setStats] = useState<ReturnType<
     typeof getExerciseStatistics
   > | null>(null);
@@ -58,7 +61,7 @@ export const EnhancedAddExercise = () => {
         setExerciseType(exerciseStats.type);
 
         if (
-          exerciseStats.type === ExerciseType.WEIGHT_BASED &&
+          exerciseStats.type === 'weight_based' &&
           exerciseStats.lastMaxWeight
         ) {
           // FIXME: Improve weight suggestion logic, should suggest in order:
@@ -85,7 +88,7 @@ export const EnhancedAddExercise = () => {
     setDistance(undefined);
     setIntensity('');
     setStats(null);
-    setExerciseType(ExerciseType.WEIGHT_BASED);
+    setExerciseType('weight_based');
   };
 
   /**
@@ -105,7 +108,11 @@ export const EnhancedAddExercise = () => {
     if (!exerciseName.trim()) return;
 
     // Check if exercise already exists in current training (case-insensitive)
-    const activeTraining = getActiveTraining();
+    let activeTraining = getActiveTraining();
+    if (!activeTraining) {
+      startNewTraining();
+      activeTraining = getActiveTraining();
+    }
     const existingExercise = activeTraining?.exercises.find(
       (ex: Exercise) =>
         ex.exerciseName.toLowerCase() === exerciseName.toLowerCase().trim(),
@@ -119,12 +126,12 @@ export const EnhancedAddExercise = () => {
     } else {
       // Create new exercise
       const exercise = createExercise(exerciseName.trim(), exerciseType);
-      addExercise(trainingId, exercise);
+      addExercise(activeTraining!.id, exercise);
       targetExerciseId = exercise.id;
     }
 
     // Add set to exercise (new or existing)
-    if (exerciseType === ExerciseType.WEIGHT_BASED) {
+    if (exerciseType === 'weight_based') {
       const set = createWeightSet(repetitions, weight);
       addSetToExercise(targetExerciseId, set);
     } else {
@@ -139,145 +146,144 @@ export const EnhancedAddExercise = () => {
   };
 
   return (
-    <div className=" bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-lg font-semibold mb-4">Dodaj Ćwiczenie</h3>
+    <Card className="p-3">
+      <CardTitle className="p-2">Dodaj Ćwiczenie</CardTitle>
+      <CardContent>
+        {/* Exercise Name */}
+        <div className="mb-4">
+          <Label className="text-sm font-medium text-gray-700 mb-2">
+            Nazwa ćwiczenia
+          </Label>
+          <Input
+            type="text"
+            value={exerciseName}
+            onChange={(e) => setExerciseName(e.target.value)}
+            placeholder="np. Wyciskanie sztangi, Plank, Bieg"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
-      {/* Exercise Name */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Nazwa ćwiczenia
-        </label>
-        <input
-          type="text"
-          value={exerciseName}
-          onChange={(e) => setExerciseName(e.target.value)}
-          placeholder="np. Wyciskanie sztangi, Plank, Bieg"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-
-        {stats && <ExerciseStats stats={stats} />}
-      </div>
-
-      {/* Exercise Type Selection */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Typ ćwiczenia
-        </label>
-        <select
-          value={exerciseType}
-          onChange={(e) => setExerciseType(e.target.value as ExerciseType)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value={ExerciseType.WEIGHT_BASED}>
-            Ćwiczenie z obciążeniem
-          </option>
-          <option value={ExerciseType.TIME_BASED}>Ćwiczenie czasowe</option>
-        </select>
-      </div>
-
-      {/* Weight-based Exercise Form */}
-      {exerciseType === ExerciseType.WEIGHT_BASED && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Powtórzenia
-              </label>
-              <input
-                type="number"
-                value={repetitions}
-                onChange={(e) => setRepetitions(Number(e.target.value))}
-                min="1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Waga (kg)
-                {stats?.lastMaxWeight && (
-                  <button
-                    onClick={handleLoadLastWeight}
-                    className="ml-2 text-xs text-blue-600 hover:text-blue-800"
-                  >
-                    (ostatnia: {stats.lastMaxWeight}kg)
-                  </button>
-                )}
-              </label>
-              <input
-                type="number"
-                value={weight}
-                onChange={(e) => setWeight(Number(e.target.value))}
-                min="0"
-                step="0.5"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
+          {stats && <ExerciseStats stats={stats} />}
         </div>
-      )}
 
-      {/* Time-based Exercise Form */}
-      {exerciseType === ExerciseType.TIME_BASED && (
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Czas (MM:SS)
-            </label>
-            <input
-              type="text"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              placeholder="MM:SS (np. 02:30)"
-              pattern="[0-9]{1,2}:[0-9]{2}"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+        {/* Exercise Type Selection */}
+        <div className="mb-4">
+          <Label className="block text-sm font-medium text-gray-700 mb-2">
+            Typ ćwiczenia
+          </Label>
+          <select
+            value={exerciseType}
+            onChange={(e) => setExerciseType(e.target.value as ExerciseType)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="weight_based">Ćwiczenie z obciążeniem</option>
+            <option value="time_based">Ćwiczenie czasowe</option>
+          </select>
+        </div>
+
+        {/* Weight-based Exercise Form */}
+        {exerciseType === 'weight_based' && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="block text-sm font-medium text-gray-700 mb-2">
+                  Powtórzenia
+                </Label>
+                <Input
+                  type="number"
+                  value={repetitions}
+                  onChange={(e) => setRepetitions(Number(e.target.value))}
+                  min="1"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <Label className="block text-sm font-medium text-gray-700 mb-2">
+                  Waga (kg)
+                  {stats?.lastMaxWeight && (
+                    <button
+                      onClick={handleLoadLastWeight}
+                      className="ml-2 text-xs text-blue-600 hover:text-blue-800"
+                    >
+                      (ostatnia: {stats.lastMaxWeight}kg)
+                    </button>
+                  )}
+                </Label>
+                <Input
+                  type="number"
+                  value={weight}
+                  onChange={(e) => setWeight(Number(e.target.value))}
+                  min="0"
+                  step="0.5"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
           </div>
+        )}
 
-          <div className="grid grid-cols-2 gap-4">
+        {/* Time-based Exercise Form */}
+        {exerciseType === 'time_based' && (
+          <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Dystans (opcjonalnie)
-              </label>
-              <input
-                type="number"
-                value={distance || ''}
-                onChange={(e) =>
-                  setDistance(
-                    e.target.value ? Number(e.target.value) : undefined,
-                  )
-                }
-                placeholder="np. 2000 (metry)"
-                min="0"
+              <Label className="block text-sm font-medium text-gray-700 mb-2">
+                Czas (MM:SS)
+              </Label>
+              <Input
+                type="text"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                placeholder="MM:SS (np. 02:30)"
+                pattern="[0-9]{1,2}:[0-9]{2}"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Intensywność (opcjonalnie)
-              </label>
-              <select
-                value={intensity}
-                onChange={(e) => setIntensity(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Wybierz intensywność</option>
-                <option value="niska">Niska</option>
-                <option value="średnia">Średnia</option>
-                <option value="wysoka">Wysoka</option>
-                <option value="maksymalna">Maksymalna</option>
-              </select>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="block text-sm font-medium text-gray-700 mb-2">
+                  Dystans (opcjonalnie)
+                </Label>
+                <Input
+                  type="number"
+                  value={distance || ''}
+                  onChange={(e) =>
+                    setDistance(
+                      e.target.value ? Number(e.target.value) : undefined,
+                    )
+                  }
+                  placeholder="np. 2000 (metry)"
+                  min="0"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              {/* TODO: Implement intensity selection */}
+              {/* <div>
+                <Label className="block text-sm font-medium text-gray-700 mb-2">
+                  Intensywność (opcjonalnie)
+                </Label>
+                <select
+                  value={intensity}
+                  onChange={(e) => setIntensity(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Wybierz intensywność</option>
+                  <option value="niska">Niska</option>
+                  <option value="średnia">Średnia</option>
+                  <option value="wysoka">Wysoka</option>
+                  <option value="maksymalna">Maksymalna</option>
+                </select>
+              </div> */}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Exercise Status Info */}
-      {exerciseName.trim() && <ExerciseInfo exerciseName={exerciseName} />}
+        {/* Exercise Status Info */}
+        {exerciseName.trim() && <ExerciseInfo exerciseName={exerciseName} />}
+      </CardContent>
+      <CardAction className="flex w-full gap-3 mt-6">
+        {/* Action Buttons */}
 
-      {/* Action Buttons */}
-      <div className="flex gap-3 mt-6">
         <Button
           onClick={handleAddExercise}
           disabled={!exerciseName.trim()}
@@ -293,8 +299,8 @@ export const EnhancedAddExercise = () => {
         >
           Wyczyść
         </Button>
-      </div>
-    </div>
+      </CardAction>
+    </Card>
   );
 };
 
