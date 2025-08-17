@@ -1,5 +1,5 @@
 import './App.css';
-import AddExercise from '@/components/AddExercise.tsx';
+import EnhancedAddExercise from '@/components/EnhancedAddExercise';
 import TrainingComponent from '@/components/Training.tsx';
 import { useTraining } from '@/hooks/useTraining.ts';
 
@@ -22,7 +22,7 @@ function App() {
         </p>
       </div>
 
-      <AddExercise />
+      <EnhancedAddExercise />
 
       {activeTraining ? (
         <div>

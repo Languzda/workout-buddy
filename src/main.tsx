@@ -2,6 +2,10 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './pages/App.tsx';
+import { initializeDataMigration } from './utils/dataMigration';
+
+// Initialize data migration on app startup
+initializeDataMigration();
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import SingleTraining from '@/pages/trainings/singleTraining/SingleTraining.tsx';
 import Trainings from '@/pages/trainings/Trainings.tsx';
