@@ -16,6 +16,7 @@ import { isWeightBasedSet, isTimeBasedSet } from '../types/training';
 export interface TrainingState {
   trainings: Training[];
   activeTrainingId: string;
+  exerciseStats: IExerciseStats[];
 
   // Basic training operations
   setTrainings: (trainings: Training[]) => void;
@@ -48,6 +49,11 @@ export interface TrainingState {
     exerciseName: string,
   ) => { value: number; date: string; trainingId: string } | null;
 
+  // Exercise statistics management
+  updateExerciseStats: (exerciseName: string) => void;
+  refreshAllExerciseStats: () => void;
+  getStoredExerciseStats: (exerciseName: string) => IExerciseStats | null;
+
   // Utility actions
   clearAllTrainings: () => void;
 
@@ -68,6 +74,7 @@ export const useTrainingStore = create<TrainingState>()(
       // Initial state
       trainings: [],
       activeTrainingId: '',
+      exerciseStats: [],
 
       // Basic training operations
       setTrainings: (trainings) =>
@@ -109,6 +116,11 @@ export const useTrainingStore = create<TrainingState>()(
           );
           if (training) {
             training.exercises.push(exercise);
+
+            // Auto-update exercise stats when new exercise is added
+            setTimeout(() => {
+              get().updateExerciseStats(exercise.exerciseName);
+            }, 0);
           }
         }),
 
@@ -150,6 +162,11 @@ export const useTrainingStore = create<TrainingState>()(
             );
             if (exercise) {
               exercise.sets.push(newSet);
+
+              // Auto-update exercise stats when new set is added
+              setTimeout(() => {
+                get().updateExerciseStats(exercise.exerciseName);
+              }, 0);
               break;
             }
           }
@@ -335,6 +352,65 @@ export const useTrainingStore = create<TrainingState>()(
         return stats?.personalRecord || null;
       },
 
+      // Exercise statistics management
+      updateExerciseStats: (exerciseName) =>
+        set((state) => {
+          const exerciseNameCleaned = exerciseName.toLowerCase().trim();
+
+          // Calculate fresh stats
+          const freshStats = get().getExerciseStats(exerciseName);
+          if (!freshStats) return;
+
+          // Find existing stats entry
+          const existingIndex = state.exerciseStats.findIndex(
+            (stat) => stat.exerciseName === exerciseNameCleaned,
+          );
+
+          if (existingIndex !== -1) {
+            // Update existing
+            state.exerciseStats[existingIndex] = freshStats;
+          } else {
+            // Add new
+            state.exerciseStats.push(freshStats);
+          }
+        }),
+
+      refreshAllExerciseStats: () =>
+        set((state) => {
+          const { trainings } = get();
+          const uniqueExerciseNames = new Set<string>();
+
+          // Collect all unique exercise names
+          trainings.forEach((training) => {
+            training.exercises.forEach((exercise) => {
+              uniqueExerciseNames.add(
+                exercise.exerciseName.toLowerCase().trim(),
+              );
+            });
+          });
+
+          // Calculate stats for all exercises
+          const allStats: IExerciseStats[] = [];
+          uniqueExerciseNames.forEach((exerciseName) => {
+            const stats = get().getExerciseStats(exerciseName);
+            if (stats) {
+              allStats.push(stats);
+            }
+          });
+
+          state.exerciseStats = allStats;
+        }),
+
+      getStoredExerciseStats: (exerciseName) => {
+        const { exerciseStats } = get();
+        const exerciseNameCleaned = exerciseName.toLowerCase().trim();
+        return (
+          exerciseStats.find(
+            (stat) => stat.exerciseName === exerciseNameCleaned,
+          ) || null
+        );
+      },
+
       // Utility operations
       clearAllTrainings: () =>
         set((state) => {
@@ -382,6 +458,7 @@ export const useTrainingStore = create<TrainingState>()(
       partialize: (state) => ({
         trainings: state.trainings,
         activeTrainingId: state.activeTrainingId,
+        exerciseStats: state.exerciseStats,
       }),
     },
   ),

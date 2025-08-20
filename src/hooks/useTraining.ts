@@ -103,5 +103,41 @@ export const useTraining = () => {
       },
       [store],
     ),
+
+    /**
+     * Get cached exercise statistics (faster than calculating fresh)
+     * @param exerciseName Name of the exercise
+     */
+    getCachedExerciseStats: useCallback(
+      (exerciseName: string) => {
+        return store.getStoredExerciseStats(exerciseName);
+      },
+      [store],
+    ),
+
+    /**
+     * Update cached statistics for specific exercise
+     * @param exerciseName Name of the exercise
+     */
+    updateExerciseStatistics: useCallback(
+      (exerciseName: string) => {
+        store.updateExerciseStats(exerciseName);
+      },
+      [store],
+    ),
+
+    /**
+     * Refresh all cached exercise statistics
+     */
+    refreshAllStatistics: useCallback(() => {
+      store.refreshAllExerciseStats();
+    }, [store]),
+
+    /**
+     * Get all cached exercise statistics
+     */
+    getAllExerciseStats: useCallback(() => {
+      return store.exerciseStats;
+    }, [store]),
   };
 };
