@@ -1,15 +1,12 @@
 import './App.css';
-import AddExercise from '@/components/AddExercise.tsx';
+import EnhancedAddExercise from '@/components/EnhancedAddExercise';
 import TrainingComponent from '@/components/Training.tsx';
 import { useTraining } from '@/hooks/useTraining.ts';
 
 function App() {
-  const { data, getActiveTrainingId } = useTraining();
+  const { getActiveTraining } = useTraining();
 
-  const activeTrainingId = getActiveTrainingId();
-  const activeTraining = data.trainings.find(
-    (training) => training.id === activeTrainingId,
-  );
+  const activeTraining = getActiveTraining();
 
   return (
     <div className="space-y-6">
@@ -22,10 +19,10 @@ function App() {
         </p>
       </div>
 
-      <AddExercise />
+      <EnhancedAddExercise />
 
       {activeTraining ? (
-        <div>
+        <div className="flex flex-col items-center">
           <h2 className="text-xl font-semibold mb-4 text-center">
             Aktywny trening
           </h2>

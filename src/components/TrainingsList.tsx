@@ -8,6 +8,8 @@ const TrainingList = () => {
 
   const trainings = data?.trainings;
 
+  console.log('Trainings:', trainings);
+
   return (
     <ul className="w-90 flex flex-col gap-4">
       {trainings?.map((item: Training) => (

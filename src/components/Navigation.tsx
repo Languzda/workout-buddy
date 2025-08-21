@@ -5,7 +5,7 @@ import { useTraining } from '@/hooks/useTraining';
 
 const Navigation = () => {
   const location = useLocation();
-  const { getActiveTrainingId } = useTraining();
+  const { getActiveTrainingId, startNewTraining } = useTraining();
   const hasActiveTraining = getActiveTrainingId() !== null;
 
   const navItems = [
@@ -56,6 +56,10 @@ const Navigation = () => {
                 </Button>
               </Link>
             )}
+
+            <Button size="sm" onClick={startNewTraining}>
+              Nowy
+            </Button>
           </div>
         </div>
       </div>
