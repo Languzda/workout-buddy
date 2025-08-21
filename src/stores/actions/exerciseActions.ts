@@ -3,7 +3,6 @@ import type { TrainingState } from '../trainingStoreTypes';
 
 export const createExerciseActions = (
   set: (fn: (state: TrainingState) => void) => void,
-  get: () => TrainingState,
 ) => ({
   addExercise: (trainingId: string, exercise: Exercise) =>
     set((state: TrainingState) => {

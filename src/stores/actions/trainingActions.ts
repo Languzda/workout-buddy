@@ -46,14 +46,28 @@ export const createTrainingActions = (
       completed: false,
     };
 
+    let lastTrainingId: string | null = null;
+
     set((state: TrainingState) => {
       const lastTraining = state.trainings.at(-1);
+      console.log(
+        `Completing last training training Action 11: ${lastTraining}`,
+      );
       if (lastTraining && !lastTraining.completed) {
         lastTraining.completed = true;
+        lastTrainingId = lastTraining.id;
+        console.log(
+          `Completing last training training Action: ${lastTraining.id}`,
+        );
       }
       state.trainings.push(newTraining);
       state.activeTrainingId = newTraining.id;
     });
+
+    // Call updateStatsAfterTrainingCompletion AFTER the set() has completed
+    if (lastTrainingId) {
+      get().updateStatsAfterTrainingCompletion(lastTrainingId);
+    }
 
     return newTraining.id;
   },

@@ -1,156 +1,138 @@
-import type { IExerciseStats } from '@/types/training';
-import { isWeightBasedSet, isTimeBasedSet } from '../../types/training';
+import type {
+  Exercise,
+  IExerciseStats,
+  PersonalRecord,
+  TimeBasedSet,
+  WeightBasedSet,
+} from '@/types/training';
 import type { TrainingState } from '../trainingStoreTypes';
+
+export interface UpdateExerciseStatsParams {
+  exercise: Exercise;
+  trainingId: string;
+  trainingDate: string;
+}
+
+export interface StatisticsActions {
+  getExerciseStats: (exerciseName: string) => IExerciseStats | null;
+  getLastMaxWeight: (exerciseName: string) => number | null;
+  getPersonalRecord: (exerciseName: string) => PersonalRecord | null;
+  updateExerciseStats: (data: UpdateExerciseStatsParams) => void;
+  updateStatsAfterTrainingCompletion: (trainingId: string) => void;
+  refreshAllExerciseStats: () => void;
+  getStoredExerciseStats: (exerciseName: string) => IExerciseStats | null;
+}
 
 export const createStatisticsActions = (
   set: (fn: (state: TrainingState) => void) => void,
   get: () => TrainingState,
 ) => ({
   getExerciseStats: (exerciseName: string): IExerciseStats | null => {
-    const { trainings } = get();
-    const exerciseNameCleaned = exerciseName.toLocaleLowerCase().trim();
-    const allExercises = trainings.flatMap((training) =>
-      training.exercises.filter(
-        (ex) => ex.exerciseName.toLowerCase() === exerciseNameCleaned,
-      ),
+    const { exerciseStats } = get();
+
+    const exerciseNameCleaned = exerciseName.toLowerCase().trim();
+
+    const exerciseStat = exerciseStats.find(
+      (stat) => stat.exerciseName.toLowerCase() === exerciseNameCleaned,
     );
 
-    if (allExercises.length === 0) return null;
-
-    const firstExercise = allExercises[0];
-    let lastMaxWeight: number | undefined;
-    let lastMaxDuration: number | undefined;
-    let personalRecord:
-      | { value: number; date: string; trainingId: string }
-      | undefined;
-    let lastTrainingDate: string | undefined;
-
-    for (const training of trainings.slice().reverse()) {
-      const exercise = training.exercises.find(
-        (ex) => ex.exerciseName.toLowerCase() === exerciseNameCleaned,
-      );
-      if (!exercise) continue;
-
-      if (!lastTrainingDate) {
-        lastTrainingDate = training.date;
-      }
-
-      for (const set of exercise.sets) {
-        if (isWeightBasedSet(set)) {
-          const currentWeight = set.weight;
-          if (!lastMaxWeight || currentWeight > lastMaxWeight) {
-            lastMaxWeight = currentWeight;
-          }
-          if (!personalRecord || currentWeight > personalRecord.value) {
-            personalRecord = {
-              value: currentWeight,
-              date: training.date,
-              trainingId: training.id,
-            };
-          }
-        } else if (isTimeBasedSet(set)) {
-          const currentDuration = set.duration;
-          if (!lastMaxDuration || currentDuration > lastMaxDuration) {
-            lastMaxDuration = currentDuration;
-          }
-          if (!personalRecord || currentDuration > personalRecord.value) {
-            personalRecord = {
-              value: currentDuration,
-              date: training.date,
-              trainingId: training.id,
-            };
-          }
-        }
-      }
-    }
-
-    return {
-      exerciseName: exerciseNameCleaned,
-      type: firstExercise.type,
-      lastMaxWeight,
-      lastMaxDuration,
-      lastTrainingDate,
-      personalRecord,
-    } as IExerciseStats;
+    return exerciseStat ?? null;
   },
 
-  getLastMaxWeight: (
-    exerciseName: string,
-    excludeTrainingId?: string,
-  ): number | null => {
-    const { trainings } = get();
-    let maxWeight = 0;
+  // TODO: implement this function to return max duration for the exercise
+  getLastMaxWeight: (exerciseName: string): number | null => {
+    const { exerciseStats } = get();
 
-    for (const training of trainings.slice().reverse()) {
-      if (excludeTrainingId && training.id === excludeTrainingId) continue;
-
-      const exercise = training.exercises.find(
-        (ex) => ex.exerciseName === exerciseName,
-      );
-      if (!exercise) continue;
-
-      for (const set of exercise.sets) {
-        if (isWeightBasedSet(set) && set.weight > maxWeight) {
-          maxWeight = set.weight;
-        }
-      }
-
-      if (maxWeight > 0) break;
-    }
-
-    return maxWeight > 0 ? maxWeight : null;
+    const exerciseNameCleaned = exerciseName.toLowerCase().trim();
+    const exerciseStat = exerciseStats.find(
+      (stat) => stat.exerciseName.toLowerCase() === exerciseNameCleaned,
+    );
+    return exerciseStat?.lastMaxWeight ?? null;
   },
 
-  getPersonalRecord: (exerciseName: string) => {
+  getPersonalRecord: (exerciseName: string): PersonalRecord | null => {
     const stats = get().getExerciseStats(exerciseName);
     return stats?.personalRecord || null;
   },
 
-  updateExerciseStats: (exerciseName: string) =>
+  updateExerciseStats: ({
+    exercise,
+    trainingDate,
+    trainingId,
+  }: UpdateExerciseStatsParams): void => {
     set((state: TrainingState) => {
-      const exerciseNameCleaned = exerciseName.toLowerCase().trim();
-      const freshStats = get().getExerciseStats(exerciseName);
-      if (!freshStats) return;
-
-      const existingIndex = state.exerciseStats.findIndex(
-        (stat) => stat.exerciseName === exerciseNameCleaned,
+      const exerciseName = exercise.exerciseName.toLowerCase().trim();
+      let stats = state.exerciseStats.find(
+        (stat) => stat.exerciseName.toLowerCase() === exerciseName,
       );
 
-      if (existingIndex !== -1) {
-        state.exerciseStats[existingIndex] = freshStats;
-      } else {
-        state.exerciseStats.push(freshStats);
+      if (!stats) {
+        stats = {
+          exerciseName,
+          lastMaxWeight: undefined,
+          lastMaxDuration: undefined,
+          lastTrainingDate: trainingDate,
+          personalRecord: undefined,
+          type: exercise.type,
+        };
+        state.exerciseStats.push(stats);
       }
-    }),
 
-  refreshAllExerciseStats: () =>
-    set((state: TrainingState) => {
-      const { trainings } = get();
-      const uniqueExerciseNames = new Set<string>();
+      if (exercise.type === 'weight_based') {
+        // Update last max weight and duration
+        const weightSets = exercise.sets as WeightBasedSet[];
+        const currentWeight = Math.max(...weightSets.map((set) => set.weight));
 
-      trainings.forEach((training) => {
-        training.exercises.forEach((exercise) => {
-          uniqueExerciseNames.add(exercise.exerciseName.toLowerCase().trim());
-        });
-      });
+        stats.lastMaxWeight = currentWeight;
 
-      const allStats: IExerciseStats[] = [];
-      uniqueExerciseNames.forEach((exerciseName) => {
-        const stats = get().getExerciseStats(exerciseName);
-        if (stats) {
-          allStats.push(stats);
+        // Update personal record if applicable
+        if (
+          !stats.personalRecord ||
+          currentWeight > stats.personalRecord.value
+        ) {
+          stats.personalRecord = {
+            value: currentWeight,
+            date: trainingDate,
+            trainingId: trainingId,
+          };
         }
-      });
+      } else if (exercise.type === 'time_based') {
+        const timeSets = exercise.sets as TimeBasedSet[];
+        const currentDuration = Math.max(
+          ...timeSets.map((set) => set.duration),
+        );
 
-      state.exerciseStats = allStats;
-    }),
+        stats.lastMaxDuration = currentDuration;
 
-  getStoredExerciseStats: (exerciseName: string): IExerciseStats | null => {
-    const { exerciseStats } = get();
-    const exerciseNameCleaned = exerciseName.toLowerCase().trim();
-    return (
-      exerciseStats.find((stat) => stat.exerciseName === exerciseNameCleaned) ||
-      null
-    );
+        // Update personal record if applicable
+        if (
+          !stats.personalRecord ||
+          currentDuration > stats.personalRecord.value
+        ) {
+          stats.personalRecord = {
+            value: currentDuration,
+            date: trainingDate,
+            trainingId: trainingId,
+          };
+        }
+      }
+    });
   },
+
+  updateStatsAfterTrainingCompletion: (trainingId: string): void => {
+    const { trainings } = get();
+    const training = trainings.find((t) => t.id === trainingId);
+
+    if (!training) return;
+
+    for (const exercise of training.exercises) {
+      get().updateExerciseStats({
+        exercise,
+        trainingId,
+        trainingDate: training.date,
+      });
+    }
+  },
+
+  // refreshAllExerciseStats: (): void => {},
 });

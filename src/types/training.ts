@@ -52,6 +52,12 @@ export interface TrainingData {
   trainings: Training[];
 }
 
+export interface PersonalRecord {
+  value: number; // wartość rekordu (waga lub czas)
+  date: string; // data ustanowienia rekordu
+  trainingId: string; // ID treningu, w którym ustanowiono rekord
+}
+
 // Typ helper dla statystyk ćwiczenia
 export interface IExerciseStats {
   exerciseName: string;
@@ -59,12 +65,7 @@ export interface IExerciseStats {
   lastMaxWeight?: number; // ostatnia największa waga (dla ćwiczeń wagowych)
   lastMaxDuration?: number; // ostatni najdłuższy czas (dla ćwiczeń czasowych)
   lastTrainingDate?: string; // data ostatniego wykonania
-  totalVolume?: number; // całkowity wolumen (waga × powtórzenia lub suma czasu)
-  personalRecord?: {
-    value: number; // wartość (waga lub czas)
-    date: string; // data ustanowienia rekordu
-    trainingId: string; // ID treningu w którym ustanowiono rekord
-  };
+  personalRecord?: PersonalRecord;
 }
 
 // Type guards dla rozróżnienia typów serii

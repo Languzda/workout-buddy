@@ -3,7 +3,9 @@ import type {
   Exercise,
   WorkoutSet,
   IExerciseStats,
+  PersonalRecord,
 } from '@/types/training';
+import type { UpdateExerciseStatsParams } from './actions/statisticsActions';
 
 export interface TrainingState {
   trainings: Training[];
@@ -33,18 +35,12 @@ export interface TrainingState {
 
   // Statistics methods
   getExerciseStats: (exerciseName: string) => IExerciseStats | null;
-  getLastMaxWeight: (
-    exerciseName: string,
-    excludeTrainingId?: string,
-  ) => number | null;
-  getPersonalRecord: (
-    exerciseName: string,
-  ) => { value: number; date: string; trainingId: string } | null;
+  getLastMaxWeight: (exerciseName: string) => number | null;
+  getPersonalRecord: (exerciseName: string) => PersonalRecord | null;
 
   // Exercise statistics management
-  updateExerciseStats: (exerciseName: string) => void;
-  refreshAllExerciseStats: () => void;
-  getStoredExerciseStats: (exerciseName: string) => IExerciseStats | null;
+  updateExerciseStats: (data: UpdateExerciseStatsParams) => void;
+  updateStatsAfterTrainingCompletion: (trainingId: string) => void;
 
   // Utility actions
   clearAllTrainings: () => void;
