@@ -24,18 +24,66 @@ export const formatDuration = (seconds: number): string => {
 /**
  * Parse duration string to seconds
  * @param duration String in format "MM:SS" or number of seconds
- * @returns Duration in seconds
+ * @returns Duration in seconds, or 0 if invalid
  */
 export const parseDuration = (duration: string | number): number => {
-  if (typeof duration === 'number') return duration;
+  // Handle number input
+  if (typeof duration === 'number') {
+    return duration >= 0 ? duration : 0;
+  }
 
-  const parts = duration.split(':');
-  if (parts.length === 2) {
-    const minutes = parseInt(parts[0], 10) || 0;
-    const seconds = parseInt(parts[1], 10) || 0;
+  // Reject empty strings
+  if (!duration || duration.trim() === '') {
+    return 0;
+  }
+
+  const trimmed = duration.trim();
+  
+  // Handle MM:SS format
+  if (trimmed.includes(':')) {
+    const parts = trimmed.split(':');
+    
+    // Reject if more than 2 parts (e.g., "1:2:3")
+    if (parts.length !== 2) {
+      return 0;
+    }
+    
+    // Reject if either part is empty (e.g., "1:", ":30")
+    if (parts[0] === '' || parts[1] === '') {
+      return 0;
+    }
+    
+    // Parse minutes and seconds
+    const minutes = parseInt(parts[0], 10);
+    const seconds = parseInt(parts[1], 10);
+    
+    // Reject if parsing failed (NaN)
+    if (isNaN(minutes) || isNaN(seconds)) {
+      return 0;
+    }
+    
+    // Reject negative values
+    if (minutes < 0 || seconds < 0) {
+      return 0;
+    }
+    
+    // Reject invalid seconds (must be 0-59)
+    if (seconds > 59) {
+      return 0;
+    }
+    
     return minutes * 60 + seconds;
   }
-  return parseInt(duration, 10) || 0;
+  
+  // Handle plain number string
+  const parsed = parseInt(trimmed, 10);
+  
+  // Reject if parsing failed or negative
+  if (isNaN(parsed) || parsed < 0) {
+    return 0;
+  }
+  
+  return parsed;
 };
 
 /**
